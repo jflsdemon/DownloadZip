@@ -1,5 +1,12 @@
 package demon;
 
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +31,8 @@ import javax.swing.JOptionPane;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
+
+
 
 public class Main {
 	// 定义文件路径
@@ -229,7 +238,7 @@ public class Main {
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
 		String curDateTime = df.format(new Date());// new Date()为获取当前系统时间
 		if (file1DateTime.equals(curDateTime) && file2DateTime.equals(curDateTime)) {
-			JOptionPane.showConfirmDialog(null, "AMAC基金估值行业分类指数历史行情和证监会行业分类下载完成", "下载完成", JOptionPane.YES_NO_OPTION);
+			JOptionPane.showConfirmDialog(null, "AMAC基金估值行业分类指数历史行情和证监会行业分类下载完成", "下载完成", JOptionPane.OK_OPTION);
 			return false;
 		} else {
 			delAllFile(pathStr);
@@ -237,26 +246,46 @@ public class Main {
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
-		Runnable runnable = new Runnable() {
+	static class StartButtonListen implements ActionListener {
 
-			@Override
-			public void run() {
-				boolean flag = true;
-				while (flag) {
-					try {
-						flag = allWorks();
-						Thread.sleep(20000);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Runnable runnable = new Runnable() {
+				@Override
+				public void run() {
+					boolean flag = true;
+					while (flag) {
+						try {
+							flag = allWorks();
+							Thread.sleep(20000);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
+					
 				}
-				
+			};
+			Thread thread = new Thread(runnable);
+			thread.start();
+		}
+		
+	}
+
+	public static void main(String[] args) throws IOException {
+		Frame frame = new Frame("Download task");
+		Button startListen = new Button("start");
+		startListen.addActionListener(new StartButtonListen());
+		frame.setLayout(new BorderLayout(100, 100));
+		frame.add(startListen);
+		frame.pack();
+		frame.setVisible(true);
+		frame.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e)
+			{
+				System.exit(0);
 			}
-		};
-		Thread thread = new Thread(runnable);
-		thread.start();
+		});
 	}
 
 }
